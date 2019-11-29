@@ -6,7 +6,11 @@
 
   function getQuery (queryParams) {
     var arr = Object.keys(queryParams).map(function (k) {
-      return k + '=' + encodeURIComponent(queryParams[k])
+      var value = queryParams[k];
+      if (typeof value === 'object' && value !== null) {
+        value = JSON.stringify(value);
+      }
+      return k + '=' + encodeURIComponent(value)
     })
     return '?' + arr.join('&')
   }
@@ -32,18 +36,6 @@
     }
 
     return fetchival.fetch(url, opts)
-      .then(function (response) {
-        if (response.status >= 200 && response.status < 300) {
-          if(opts.responseAs=="response")
-            return response
-          if (response.status == 204)
-            return null;
-          return response[opts.responseAs]();
-        }
-        var err = new Error(response.statusText)
-        err.response = response
-        throw err
-      })
   }
 
   function fetchival (url, opts) {
